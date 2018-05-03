@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: blackbox-exporter01-ch3
-        image: ep3vinfra10006.dco.elmae:5001/blackbox_exporter:latest
+        image: <<registry repo>>
         volumeMounts:
         - mountPath: /etc/blackbox_exporter/config.yml
           name: blackbox-exporter01-ch3-config
@@ -67,4 +67,4 @@ spec:
       imagePullSecrets: 
       - name: regsecret
       nodeSelector:
-        kubernetes.io/hostname: ep3vinfra10002
+        kubernetes.io/hostname: <<host>>
