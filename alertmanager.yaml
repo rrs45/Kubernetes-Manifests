@@ -69,4 +69,4 @@ spec:
       imagePullSecrets: 
       - name: regsecret
       nodeSelector:
-        kubernetes.io/hostname: ep3vinfra10002
+        kubernetes.io/hostname: <<host>>
