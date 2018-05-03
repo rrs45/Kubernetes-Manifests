@@ -37,10 +37,10 @@ spec:
              - key: kubernetes.io/hostname
                operator: In
                values:
-               - ep3vinfra10004
+               - <<host>>
       containers:
       - name: prometheus-ch3-01
-        image: ep3vinfra10006.dco.elmae:5001/prometheus:latest
+        image: <<registry>
         volumeMounts: 
         - mountPath: /etc/prometheus
           name: prometheus-ch3-01
@@ -67,7 +67,7 @@ spec:
          - --storage.tsdb.path=/prometheus
          - --storage.tsdb.retention=30d
          - --config.file=/etc/prometheus/prometheus-ch3-01-config.yaml
-#         - --web.external-url=https://ep3vinfra10004.dco.elmae/prometheus-ch3-01
+#         - --web.external-url=https://<<host>>/prometheus-ch3-01
 #         - --web.route-prefix=/prometheus-ch3-01
          - --log.level=debug
         ports:
