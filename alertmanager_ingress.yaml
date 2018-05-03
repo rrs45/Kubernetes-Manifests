@@ -11,7 +11,7 @@ metadata:
     ingress.kubernetes.io/auth-secret: "traefik-auth"
 spec:
   rules:
-  - host: ep3vinfra10002.dco.elmae
+  - host: <<host>>
     http:
       paths: 
       - path: /alertmanager-ch3-01
