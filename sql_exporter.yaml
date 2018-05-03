@@ -1,0 +1,71 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: sql-exporter01-ch3
+spec:
+  selector:
+    app: sql-exporter01-ch3
+  ports:
+  - protocol: TCP
+    port: 9237
+    targetPort: 9237
+  type: ClusterIP
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: sql-exporter01-ch3
+  labels:
+    app: sql-exporter01-ch3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sql-exporter01-ch3
+  template:
+    metadata:
+      labels:
+        app: sql-exporter01-ch3
+    spec:
+      hostNetwork: false
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+             matchExpressions:
+             - key: kubernetes.io/hostname
+               operator: In
+               values:
+               - ep3vinfra10002
+      containers:
+      - name: sql-exporter01-ch3
+        image: ep3vinfra10006.dco.elmae:5001/sql_exporter:latest
+        volumeMounts: 
+        - mountPath: /etc/sql_exporter/config.yml
+          name: sql-exporter01-ch3
+          readOnly: true
+        securityContext:
+          privileged: false
+          capabilities:
+            drop:
+             - CHOWN
+             - DAC_OVERRIDE
+             - FOWNER
+             - FSETID
+             - SETUID
+             - SETGID
+             - SYS_CHROOT
+             - MKNOD
+        args:
+         - -config.file=/etc/sql_exporter/config.yml
+        ports:
+        - containerPort: 9237
+      volumes:
+      - hostPath:
+          path: /mnt/configs/prometheus_exporters/sql-exporter01-ch3.yml
+          type: File
+        name: sql-exporter01-ch3
+      dnsPolicy: Default
+      imagePullSecrets: 
+      - name: regsecret

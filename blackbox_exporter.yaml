@@ -1,0 +1,70 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: blackbox-exporter01-ch3
+spec:
+  selector:
+    app: blackbox-exporter01-ch3
+  ports:
+  - protocol: TCP
+    port: 9115
+    targetPort: 9115
+  type: ClusterIP
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: blackbox-exporter01-ch3
+  labels:
+    app: blackbox-exporter01-ch3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blackbox-exporter01-ch3
+  template:
+    metadata:
+      labels:
+        app: blackbox-exporter01-ch3
+    spec:
+      containers:
+      - name: blackbox-exporter01-ch3
+        image: ep3vinfra10006.dco.elmae:5001/blackbox_exporter:latest
+        volumeMounts:
+        - mountPath: /etc/blackbox_exporter/config.yml
+          name: blackbox-exporter01-ch3-config
+          readOnly: true
+        - mountPath: /opt/certs
+          name: certs
+          readOnly: true  
+        securityContext:
+          privileged: false
+          capabilities:
+            drop:
+             - CHOWN
+             - DAC_OVERRIDE
+             - FOWNER
+             - FSETID
+             - SETUID
+             - SETGID
+             - SYS_CHROOT
+             - MKNOD
+        args:
+         - --log.level=debug
+         - --config.file=/etc/blackbox_exporter/config.yml
+        ports:
+        - containerPort: 9115
+      volumes:
+      - hostPath:
+          path: /mnt/configs/prometheus_exporters/blackbox-exporter01-ch3.yml
+          type: File
+        name: blackbox-exporter01-ch3-config
+      - hostPath:
+          path: /mnt/configs/certs
+          type: Directory
+        name: certs
+      dnsPolicy: Default
+      imagePullSecrets: 
+      - name: regsecret
+      nodeSelector:
+        kubernetes.io/hostname: ep3vinfra10002

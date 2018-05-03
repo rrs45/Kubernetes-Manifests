@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: vrops-exporter-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.frontend.rule.type: PathPrefixStrip
+    traefik.frontend.entryPoints: https
+    ingress.kubernetes.io/auth-type: "basic"
+    ingress.kubernetes.io/auth-secret: "traefik-auth"
+spec:
+  rules:
+  - host: ep9vinfra200001.dco.elmae
+    http:
+      paths: 
+      - path: /vrops-exporter01-sc9/
+        backend:
+          serviceName: vrops-exporter01-sc9
+          servicePort: 8020
+     

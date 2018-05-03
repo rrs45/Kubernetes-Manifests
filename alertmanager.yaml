@@ -1,0 +1,72 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: alertmanager-ch3-01
+spec:
+  selector:
+    app: alertmanager-ch3-01
+  ports:
+  - protocol: TCP
+    port: 9093
+    targetPort: 9093
+  type: ClusterIP
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: alertmanager-ch3-01
+  labels:
+    app: alertmanager-ch3-01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager-ch3-01
+  template:
+    metadata:
+      labels:
+        app: alertmanager-ch3-01
+    spec:
+      containers:
+      - name: alertmanager-ch3-01
+        image: ep3vinfra10006.dco.elmae:5001/alertmanager:latest
+        volumeMounts: 
+        - mountPath: /etc/alertmanager
+          name: alertmanager-ch3-01
+          readOnly: true
+        - mountPath: /alertmanager
+          name: data
+          readOnly: false
+        securityContext:
+          privileged: false
+          capabilities:
+            drop:
+             - CHOWN
+             - DAC_OVERRIDE
+             - FOWNER
+             - FSETID
+             - SETUID
+             - SETGID
+             - SYS_CHROOT
+             - MKNOD
+        args:
+         - --storage.path=/alertmanager
+         - --config.file=/etc/alertmanager/alertmanager-ch3-01-config.yaml
+         - --log.level=debug
+         - --mesh.listen-address=
+        ports:
+        - containerPort: 9093
+      volumes:
+      - hostPath:
+          path: /mnt/configs/alertmanager
+          type: Directory
+        name: alertmanager-ch3-01
+      - hostPath:
+          path: /mnt/prometheus/alertmanager-ch3-01
+          type: Directory
+        name: data  
+      dnsPolicy: Default
+      imagePullSecrets: 
+      - name: regsecret
+      nodeSelector:
+        kubernetes.io/hostname: ep3vinfra10002

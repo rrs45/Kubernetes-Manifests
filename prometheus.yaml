@@ -1,0 +1,91 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus-ch3-01
+spec:
+  selector:
+    app: prometheus-ch3-01
+  ports:
+  - protocol: TCP
+    port: 9090
+    targetPort: 9090
+  type: ClusterIP
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: prometheus-ch3-01
+  labels:
+    app: prometheus-ch3-01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-ch3-01
+  template:
+    metadata:
+      labels:
+        app: prometheus-ch3-01
+    spec:
+      hostNetwork: false
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+             matchExpressions:
+             - key: kubernetes.io/hostname
+               operator: In
+               values:
+               - ep3vinfra10004
+      containers:
+      - name: prometheus-ch3-01
+        image: ep3vinfra10006.dco.elmae:5001/prometheus:latest
+        volumeMounts: 
+        - mountPath: /etc/prometheus
+          name: prometheus-ch3-01
+          readOnly: true
+        - mountPath: /etc/certs
+          name: certs
+          readOnly: true  
+        - mountPath: /prometheus
+          name: data
+          readOnly: false
+        securityContext:
+          privileged: false
+          capabilities:
+            drop:
+             - CHOWN
+             - DAC_OVERRIDE
+             - FOWNER
+             - FSETID
+             - SETUID
+             - SETGID
+             - SYS_CHROOT
+             - MKNOD
+        args:
+         - --storage.tsdb.path=/prometheus
+         - --storage.tsdb.retention=30d
+         - --config.file=/etc/prometheus/prometheus-ch3-01-config.yaml
+#         - --web.external-url=https://ep3vinfra10004.dco.elmae/prometheus-ch3-01
+#         - --web.route-prefix=/prometheus-ch3-01
+         - --log.level=debug
+        ports:
+        - containerPort: 9090
+      volumes:
+      - hostPath:
+          path: /mnt/configs/prometheus-ch3-01
+          type: Directory
+        name: prometheus-ch3-01
+      - hostPath:
+          path: /mnt/configs/certs
+          type: Directory
+        name: certs
+      - hostPath:
+          path: /mnt/prometheus/prometheus-ch3-01-data
+          type: Directory
+        name: data  
+      dnsPolicy: Default
+      imagePullSecrets: 
+      - name: regsecret
+ 

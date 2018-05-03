@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: sql-exporter01-ch3
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.frontend.rule.type: PathPrefixStrip
+    traefik.frontend.entryPoints: https
+    ingress.kubernetes.io/auth-type: "basic"
+    ingress.kubernetes.io/auth-secret: "traefik-auth"
+spec:
+  rules:
+  - host: ep3vinfra10002.dco.elmae
+    http:
+      paths: 
+      - path: /sql-exporter01-ch3/
+        backend:
+          serviceName: sql-exporter01-ch3
+          servicePort: 9237
