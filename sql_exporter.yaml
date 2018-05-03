@@ -37,10 +37,10 @@ spec:
              - key: kubernetes.io/hostname
                operator: In
                values:
-               - ep3vinfra10002
+               - <<host>>
       containers:
       - name: sql-exporter01-ch3
-        image: ep3vinfra10006.dco.elmae:5001/sql_exporter:latest
+        image: <<registry>>
         volumeMounts: 
         - mountPath: /etc/sql_exporter/config.yml
           name: sql-exporter01-ch3
